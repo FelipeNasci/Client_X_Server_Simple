@@ -6,15 +6,15 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class Response implements Runnable {
-
+    
     public Response(Socket client) {
         this.client = client;
 
     }
 
-    Socket client;
-    DataInputStream in;
-    DataOutputStream out;
+    Socket client;              //  Cliente
+    DataInputStream in;         //  Captura mensagens do cliente
+    DataOutputStream out;       //  Envia mensagens para o cliente
     
     String message;
     
