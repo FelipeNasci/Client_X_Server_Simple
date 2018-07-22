@@ -11,6 +11,11 @@ public class Server {
         
         int port = 5555;                            //  Porta de Conexao com o servidor
         
+        /**********   IMPORTANTE **********/
+        /*    Usar localhost:port        */
+        /* para conectar-se ao servidor  */
+        /*********************************/
+        
         ExecutorService pool;
         ServerSocket server;
         Socket client;
