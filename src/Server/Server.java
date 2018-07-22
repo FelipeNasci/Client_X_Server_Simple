@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 public class Server {
     public static void main(String args[]){
         
-        int port = 5555;                            //  Porta de Conexao com o servidor.
+        int port = 5555;                            //  Porta de Conexao com o servidor
         
         /**********   IMPORTANTE  *********/
         /* Usar no browser localhost:port */
