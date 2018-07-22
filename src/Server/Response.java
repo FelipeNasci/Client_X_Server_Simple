@@ -26,13 +26,22 @@ public class Response implements Runnable {
             
             in = new DataInputStream(client.getInputStream());
             out = new DataOutputStream(client.getOutputStream());
+            
+            File_Server f;
                 
             while (true) {
                 
+                
+                f = new File_Server(in, out);
+                client.close();
+                
+                
+                
+                /*
                 message = in.readUTF();
                 System.out.println(message);
                 out.writeUTF("Hello World");
-                
+                */
             }
 
         } catch (IOException e) {

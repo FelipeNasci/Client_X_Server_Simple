@@ -11,10 +11,10 @@ public class Server {
         
         int port = 5555;                            //  Porta de Conexao com o servidor
         
-        /**********   IMPORTANTE **********/
-        /*    Usar localhost:port        */
-        /* para conectar-se ao servidor  */
-        /*********************************/
+        /**********   IMPORTANTE  *********/
+        /* Usar no browser localhost:port */
+        /*  para conectar-se ao servidor  */
+        /**********************************/
         
         ExecutorService pool;
         ServerSocket server;
@@ -32,8 +32,8 @@ public class Server {
                 client = server.accept();           //  Abre uma conexao para o cliente
                 pool.execute(new Response(client)); //  Executa a resposta dentro de um poll
                 
-                System.out.println("\t**Cliente com endereco " + client.getInetAddress() + 
-                                   " Conectou-se com a porta " + client.getPort());
+                //System.out.println("\t**Cliente com endereco " + client.getInetAddress() + 
+                 //                  " Conectou-se com a porta " + client.getPort());
             }
             
         }catch(IOException e){System.err.println(e);}
