@@ -14,11 +14,7 @@ import java.util.TimeZone;
 public class File_Server {
 
     public File_Server(Socket client, String protocol, String fileName) {
-        
-        if(fileName.equals("/"))
-            fileName = "index.html";
-
-        this.address = "src/Site/" + fileName;
+        this.address = "src/Site/" + defineFile(fileName);
         this.client = client;
         this.protocol = protocol;
         
@@ -107,6 +103,15 @@ public class File_Server {
         return dataAtual;
         }catch(Exception er){System.err.println("Erro na data");}
         return null;
+    }
+    
+    private String defineFile(String fileName){
+        if(fileName.equals("/")){
+            return "index.html";
+        }else{
+            return "erro.html";
+        }
+            
     }
 
 }
