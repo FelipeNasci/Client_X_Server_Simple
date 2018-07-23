@@ -33,7 +33,7 @@ public class Server {
                 pool.execute(new Response(client)); //  Executa a resposta dentro de um poll
                 
                 //System.out.println("\t**Cliente com endereco " + client.getInetAddress() + 
-                 //                  " Conectou-se com a porta " + client.getPort());
+                //                   " Conectou-se com a porta " + client.getPort());
             }
             
         }catch(IOException e){System.err.println(e);}

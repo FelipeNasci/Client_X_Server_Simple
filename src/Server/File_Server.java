@@ -1,50 +1,112 @@
 package Server;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.*;
+import java.net.Socket;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class File_Server {
-    
-    public File_Server(DataInputStream in, DataOutputStream out)
-    {
-        inRead = new InputStreamReader(in);
-        buffReader = new BufferedReader(inRead);
-    }
-    
-    InputStreamReader inRead;           //  Ler o que o cliente escreveu
-    BufferedReader buffReader;
 
-    String fName;
-    
-    String address = "/site/estrutura_basica.html";
-    File file;
-    
-    public void messageClient()
-    {
-        try{
+    public File_Server(Socket client, String protocol, String fileName) {
         
-            do{
-                fName = buffReader.readLine();
-                System.out.println(fName);
+        if(fileName.equals("/"))
+            fileName = "index.html";
+
+        this.address = "src/Site/" + fileName;
+        this.client = client;
+        this.protocol = protocol;
+        
+    }
+
+    private final String address;
+    private final String protocol;
+    
+    private byte[] content;
+
+    private final Socket client;
+    private OutputStream response;              //  Envia resposta para o cliente     
+    private BufferedReader buffReader;          //  Ler requisicao que cliente escreveu
+
+    private File file;
+
+    public void PUT() {
+
+        try {
+
+            file = new File(address);                   //  Arquivo .html
+
+            InputStream inStream = new BufferedInputStream(
+                                   new FileInputStream(file));
+            
+            OutputStream out = client.getOutputStream();
+            
+            String str = "";
+            int data = 0;
+
+            if(!file.exists()){
+                System.out.println("Arquivo ausente");
+            }
+
+            do {
+                data = inStream.read();
+                str += (char) data;
+            } while (data > -1);
+
+           content = str.getBytes();
+            
+           //content = Files.readAllBytes(file.toPath());       //Tambem pode ser usado
+           
+            out.write(headerResponse().getBytes());
+            out.write(content);
+            
+            out.flush();
+            out.close();
+
+        } catch (FileNotFoundException e) {
+        } catch (IOException er) {
+        }
+    }
+
+    public String headerResponse(){
+        
+        try{
+            
+            String resp = protocol + "200 OK\r\n"
+                + "Location: http://localhost:5555/\r\n"
+                + "Date: " + date() + "\r\n"
+                + "Server: Server/1.0\r\n"
+                + "Content-Type: text/html\r\n"
+                + "Content-Length: " + String.valueOf(content.length) + "\r\n"
+                + "\r\n";
                 
-            } while(!fName.equals("null"));
+                return resp;
             
-        }catch(IOException e){}
+        }catch(Exception err){
+            System.err.println("Erro no metodo headerResponse");
+        }
+        return null;
+    }
+  
+    private String date(){
         
-    }
-    
-    public void response()
-    {
         try{
-            
-            file = new File(address);
-            
-            
-        }catch(Exception e){}
+        
+        SimpleDateFormat dataFormat = new SimpleDateFormat("E, dd MMM yyyy hh:mm:ss", Locale.ENGLISH);
+        Date date = new Date();
+        String dataAtual;
+
+        dataFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        dataAtual = dataFormat.format(date) + " GMT";
+        
+        return dataAtual;
+        }catch(Exception er){System.err.println("Erro na data");}
+        return null;
     }
-    
+
 }
