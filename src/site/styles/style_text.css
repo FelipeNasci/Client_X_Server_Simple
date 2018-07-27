@@ -1,0 +1,15 @@
+a{
+	color: red;												/*	COR DO LINK = VERMELHO 		*/
+	font-family: helvetica, sans-serif;						/*	FAMILIA DE FONTES 			*/
+	text-decoration: none;									/*	REMOVE SUBLINHADO DO LINK 	*/
+	font-size: 20px;										/*	TAMANHO DA FONTE 			*/
+}
+
+#kits{	
+	color: DarkGreen;											/*	DEFINIR COR EM HEXADECIMAL	*/
+	font-size: 15px
+}
+
+p{
+	color: orange;
+}

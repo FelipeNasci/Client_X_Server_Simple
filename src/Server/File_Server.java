@@ -6,105 +6,98 @@ import java.net.Socket;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 
 public class File_Server {
 
     public File_Server(Socket client, String protocol, String fileName) {
-        this.address = "src/Site/" + defineFile(fileName);
+        defineFile(fileName);           //  Inicia o file
         this.client = client;
         this.protocol = protocol;
         
     }
 
-    private final String address;
+    private  String address;
     private final String protocol;
+    private String status;                      //  o status de retorno da resposta do servidor
     
     private byte[] content;
 
     private final Socket client;
-    private String status;                      //  o status de retorno da resposta do servidor
-    private OutputStream response;              //  Envia resposta para o cliente     
-    private BufferedReader buffReader;          //  Ler requisicao que cliente escreveu
-
     private File file;
 
-    public void PUT() {
+    public void Response() {
 
         try {
-
-            file = new File(address); //  Arquivo .html
-            status = protocol + " 200 OK\r\n";
-            
-            if(!file.exists()){
-                status = protocol + " 404 Not Found\r\n";
-                file = new File("src/Site/erro.html");
+  
+            try (OutputStream out = client.getOutputStream()) {
+                
+                //  Ler todo o arquivo e serializar
+                content = Files.readAllBytes(file.toPath());
+                
+                //  Escreve para o cliente o Header e o body
+                String str = headerResponse( authenticate() );
+                
+                System.err.println(str);
+                
+                out.write(str.getBytes());
+                out.write(content);
+                
+                out.flush();
             }
 
-            InputStream inStream = new BufferedInputStream(
-                                   new FileInputStream(file));
-            
-            OutputStream out = client.getOutputStream();
-            
-            String str = "";
-            int data = 0;
-
-            do {
-                data = inStream.read();
-                str += (char) data;
-            } while (data > -1);
-
-            content = str.getBytes();
-            
-            //content = Files.readAllBytes(file.toPath());       //Tambem pode ser usado
-           
-            //out.write(headerResponse(status, false).getBytes());
-            authenticate(out);
-            //out.write(content);
-            
-            out.flush();
-            out.close();
-
         } catch (FileNotFoundException e) {
+            System.err.println(e);
             System.err.println("Arquivo ausente");
         } catch (IOException er) {
+            System.err.println(er);
         }
     }
     
     //header da resposta do servidor
-    public String headerResponse(String s, boolean auth) {
-        String resp;
-        if (!auth){
-            resp = s
-                + "Server: Server/1.0\r\n"
-                + "Location: http://localhost:5555/\r\n"
-                + "Content-Type: text/html\r\n"
-                + "Content-Length: " + String.valueOf(content.length) + "\r\n";
-        }else{
-            resp = protocol + " 401 Unauthorized\r\n"
-                + "Server: Server/1.0\r\n"
-                + "Location: http://localhost:5555/\r\n"
-                + "Content-Type: text/html\r\n"
-                + "WWW-Authenticate: Basic realm=\"System Administrator\"";
+    public String headerResponse(boolean auth) {
+        
+        //  Autorizacao eh string vazia
+        String authorization = "";              
+        
+        //  Se a requisicao precisar de autorizacao, a string  eh modificada
+        if(auth)
+            authorization = "WWW-Authenticate: Basic realm=\"System Administrator\"";
+        
+        return protocol + " " + status + "\r\n"
+            + "Location: http://localhost:5555/\r\n"
+            + "Server: Server/1.0\r\n"
+            + "Content-Type: text/html\r\n"
+            + "Content-Length: " + String.valueOf(content.length) + "\r\n"
+            + authorization;
+        
         }
-        return resp;
+        
+    private boolean authenticate(){
+
+        return ( address.equalsIgnoreCase("src/Site//site2.html") );
     }
     
-    private void authenticate(OutputStream o) throws IOException{
-        System.out.println(address);
-        if (address.equalsIgnoreCase("src/Site//site2.html")){
-            o.write(headerResponse(status, true).getBytes());
-        }else{
-            o.write(headerResponse(status, false).getBytes());            
+    private void defineFile(String fileName){
+            if (fileName.equals("/")) {                     //  Se o arquivo eh raiz
+            fileName = "index.html";                    //  Retorne a pg principal
+            this.status = "200 OK";                     //  Tudo ok
+            this.address = "src/Site/" + fileName;          //  Define o endereco do arquivo
+            this.file = new File(address); 
+            return;                                     //  Nao realize o restante do metodo
         }
-        o.write(content);
+
+        this.address = "src/Site/" + fileName;          //  Define o endereco do arquivo
+        this.file = new File(address);                  //  Procura o arquivo
+
+        if (!file.exists()) {                           //  Se o arquivo nao existe
+            this.address = "src/Site/" + "erro.html";   //  Localiza pg de erro 
+            this.file = new File(address);              //  Identifica o arquivo de erro
+            this.status = "404 Not Found";              //  Bad request
+        }
+        else
+            this.status = "200 OK";                     //  Arquivo encontrado | tudo ok
     }
-    
-    private String defineFile(String fileName){
-        if(fileName.equals("/")){
-            return "index.html";
-        }else{
-            return fileName;
-        }  
     }
 
-}
+
