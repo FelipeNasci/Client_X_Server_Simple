@@ -26,6 +26,7 @@ public class File_Server {
     private byte[] content;
 
     private final Socket client;
+    private String status;                      //  o status de retorno da resposta do servidor
     private OutputStream response;              //  Envia resposta para o cliente     
     private BufferedReader buffReader;          //  Ler requisicao que cliente escreveu
 
@@ -35,7 +36,14 @@ public class File_Server {
 
         try {
 
-            file = new File(address);                   //  Arquivo .html
+            file = new File(address); //  Arquivo .html
+            status = protocol + "200 OK\r\n";
+            
+            if(!file.exists()){
+                System.err.println("Arquivo ausente");
+                status = protocol + "404 Not Found\r\n";
+                file = new File("src/Site/erro.html");
+            }
 
             InputStream inStream = new BufferedInputStream(
                                    new FileInputStream(file));
@@ -45,35 +53,32 @@ public class File_Server {
             String str = "";
             int data = 0;
 
-            if(!file.exists()){
-                System.out.println("Arquivo ausente");
-            }
-
             do {
                 data = inStream.read();
                 str += (char) data;
             } while (data > -1);
 
-           content = str.getBytes();
+            content = str.getBytes();
             
-           //content = Files.readAllBytes(file.toPath());       //Tambem pode ser usado
+            //content = Files.readAllBytes(file.toPath());       //Tambem pode ser usado
            
-            out.write(headerResponse().getBytes());
+            out.write(headerResponse(status).getBytes());
             out.write(content);
             
             out.flush();
             out.close();
 
         } catch (FileNotFoundException e) {
+            System.out.println("uma coisa");
         } catch (IOException er) {
         }
     }
 
-    public String headerResponse(){
+    public String headerResponse(String s){
         
         try{
             
-            String resp = protocol + "200 OK\r\n"
+            String resp = s
                 + "Location: http://localhost:5555/\r\n"
                 + "Date: " + date() + "\r\n"
                 + "Server: Server/1.0\r\n"
@@ -109,9 +114,8 @@ public class File_Server {
         if(fileName.equals("/")){
             return "index.html";
         }else{
-            return "erro.html";
-        }
-            
+            return fileName + ".html";
+        }  
     }
 
 }
