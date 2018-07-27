@@ -6,10 +6,6 @@ import java.net.Socket;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 public class File_Server {
 
@@ -37,11 +33,10 @@ public class File_Server {
         try {
 
             file = new File(address); //  Arquivo .html
-            status = protocol + "200 OK\r\n";
+            status = protocol + " 200 OK\r\n";
             
             if(!file.exists()){
-                System.err.println("Arquivo ausente");
-                status = protocol + "404 Not Found\r\n";
+                status = protocol + " 404 Not Found\r\n";
                 file = new File("src/Site/erro.html");
             }
 
@@ -62,59 +57,53 @@ public class File_Server {
             
             //content = Files.readAllBytes(file.toPath());       //Tambem pode ser usado
            
-            out.write(headerResponse(status).getBytes());
-            out.write(content);
+            //out.write(headerResponse(status, false).getBytes());
+            authenticate(out);
+            //out.write(content);
             
             out.flush();
             out.close();
 
         } catch (FileNotFoundException e) {
-            System.out.println("uma coisa");
+            System.err.println("Arquivo ausente");
         } catch (IOException er) {
         }
     }
-
-    public String headerResponse(String s){
-        
-        try{
-            
-            String resp = s
-                + "Location: http://localhost:5555/\r\n"
-                + "Date: " + date() + "\r\n"
+    
+    //header da resposta do servidor
+    public String headerResponse(String s, boolean auth) {
+        String resp;
+        if (!auth){
+            resp = s
                 + "Server: Server/1.0\r\n"
+                + "Location: http://localhost:5555/\r\n"
                 + "Content-Type: text/html\r\n"
-                + "Content-Length: " + String.valueOf(content.length) + "\r\n"
-                + "\r\n";
-                
-                return resp;
-            
-        }catch(Exception err){
-            System.err.println("Erro no metodo headerResponse");
+                + "Content-Length: " + String.valueOf(content.length) + "\r\n";
+        }else{
+            resp = protocol + " 401 Unauthorized\r\n"
+                + "Server: Server/1.0\r\n"
+                + "Location: http://localhost:5555/\r\n"
+                + "Content-Type: text/html\r\n"
+                + "WWW-Authenticate: Basic realm=\"System Administrator\"";
         }
-        return null;
+        return resp;
     }
-  
-    private String date(){
-        
-        try{
-        
-        SimpleDateFormat dataFormat = new SimpleDateFormat("E, dd MMM yyyy hh:mm:ss", Locale.ENGLISH);
-        Date date = new Date();
-        String dataAtual;
-
-        dataFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        dataAtual = dataFormat.format(date) + " GMT";
-        
-        return dataAtual;
-        }catch(Exception er){System.err.println("Erro na data");}
-        return null;
+    
+    private void authenticate(OutputStream o) throws IOException{
+        System.out.println(address);
+        if (address.equalsIgnoreCase("src/Site//site2.html")){
+            o.write(headerResponse(status, true).getBytes());
+        }else{
+            o.write(headerResponse(status, false).getBytes());            
+        }
+        o.write(content);
     }
     
     private String defineFile(String fileName){
         if(fileName.equals("/")){
             return "index.html";
         }else{
-            return fileName + ".html";
+            return fileName;
         }  
     }
 
