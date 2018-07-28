@@ -1,0 +1,1 @@
+Cliente com endereco 0:0:0:0:0:0:0:1/r/nConectou-se com porta: 52076/r/nSolicitando com metodo: GET/r/nArquivo: /dr/r/nProtocolo: HTTP/1.1/r/nResposta Servidor: 404 Not Found/r/n

@@ -12,13 +12,16 @@ public class Response implements Runnable {
 
     public Response(Socket client) {
         this.client = client;
-
+        this.log = new Log("src/LOG");
+        
     }
 
     private String method;
     private String protocol;
     private String fileName;
+    private String status;
 
+    private Log log;
     private final Socket client;                //  Cliente
     private DataInputStream in;                 //  Captura mensagens do cliente
 
@@ -28,16 +31,17 @@ public class Response implements Runnable {
         try {
 
             in = new DataInputStream(client.getInputStream());
-            
+
             headerClient();
             //System.err.println(headerClient());                     //  Ler o Cabecalho do client
-            
-            switch (method) {
 
+            switch (method) {
+                
                 case "GET":
                     //  Solicita um documento do servidor
                     //  O Server recebe um GET e retorna um PUT
-                    new File_Server(client, protocol, fileName).Response();
+                    status = new File_Server(client, protocol, fileName).Response();
+                    logger();
                     break;
 
                 case "HEAD":
@@ -98,6 +102,20 @@ public class Response implements Runnable {
             System.err.println(err);
         }
         return null;
+    }
+    
+    public void logger(){
+        String logger;
+        logger = "Cliente com endereco " + client.getInetAddress().getHostName() + "/r/n"
+                + "Conectou-se com porta: " + client.getPort() + "/r/n"
+                + "Solicitando com metodo: " + method + "/r/n" 
+                + "Arquivo: " + fileName + "/r/n"
+                + "Protocolo: " + protocol + "/r/n"
+                + "Resposta Servidor: " + status + "/r/n";
+        
+        log.criarArquivo("log.txt");
+        log.gravar("log.txt", logger, ".txt");
+        
     }
     
 }
