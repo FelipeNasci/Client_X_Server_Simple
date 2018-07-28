@@ -17,7 +17,7 @@ public class File_Server {
         
     }
 
-    private  String address;
+    private String address;
     private final String protocol;
     private String status;                      //  o status de retorno da resposta do servidor
     
@@ -29,20 +29,20 @@ public class File_Server {
     public void Response() {
 
         try {
-  
+
             try (OutputStream out = client.getOutputStream()) {
-                
+
                 //  Ler todo o arquivo e serializar
                 content = Files.readAllBytes(file.toPath());
-                
+
                 //  Escreve para o cliente o Header e o body
                 String str = headerResponse( authenticate() );
-                
+
                 System.err.println(str);
-                
+
                 out.write(str.getBytes());
                 out.write(content);
-                
+
                 out.flush();
             }
 
@@ -57,20 +57,20 @@ public class File_Server {
     //header da resposta do servidor
     public String headerResponse(boolean auth) {
         
-        //  Autorizacao eh string vazia
-        String authorization = "";              
+        //  Autorizacao indica o final do cabecalho
+        String authorization = "\r\n";              
         
         //  Se a requisicao precisar de autorizacao, a string  eh modificada
         if(auth)
-            authorization = "WWW-Authenticate: Basic realm=\"System Administrator\"";
+            authorization = "WWW-Authenticate: Basic realm=\"System Administrator\"" + "\r\n" + "\r\n";
         
-        return protocol + " " + status + "\r\n"
+        return this.protocol + " " + this.status + "\r\n"
             + "Location: http://localhost:5555/\r\n"
             + "Server: Server/1.0\r\n"
             + "Content-Type: text/html\r\n"
             + "Content-Length: " + String.valueOf(content.length) + "\r\n"
             + authorization;
-        
+
         }
         
     private boolean authenticate(){
@@ -99,5 +99,3 @@ public class File_Server {
             this.status = "200 OK";                     //  Arquivo encontrado | tudo ok
     }
     }
-
-

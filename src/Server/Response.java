@@ -28,12 +28,12 @@ public class Response implements Runnable {
         try {
 
             in = new DataInputStream(client.getInputStream());
-            
+
             headerClient();
             //System.err.println(headerClient());                     //  Ler o Cabecalho do client
-            
-            switch (method) {
 
+            switch (method) {
+                
                 case "GET":
                     //  Solicita um documento do servidor
                     //  O Server recebe um GET e retorna um PUT
