@@ -16,7 +16,7 @@ public class Response implements Runnable {
 
     public Response(Socket client) {
         this.client = client;
-        this.log = new Log("src/LOG");
+        this.log = new Arquivos("src/LOG/");
         
     }
 
@@ -25,7 +25,7 @@ public class Response implements Runnable {
     private String fileName;
     private String status;
 
-    private Log log;
+    private Arquivos log;
     private final Socket client;                //  Cliente
     private DataInputStream in;                 //  Captura mensagens do cliente
 
@@ -38,14 +38,14 @@ public class Response implements Runnable {
 
             headerClient();
             //System.err.println(headerClient());                     //  Ler o Cabecalho do client
-
+            
             switch (method) {
                 
                 case "GET":
                     //  Solicita um documento do servidor
-                    //  O Server recebe um GET e retorna um PUT
+                    //  O Server recebe um GET e retorna uma resposta
                     status = new File_Server(client, protocol, fileName).Response();
-                    logger();
+                    logger();                                       //  Salva informacoes do servidor em um log 
                     break;
 
                 case "HEAD":
@@ -99,7 +99,10 @@ public class Response implements Runnable {
                     headerClient += control + "\r\n";
 
                 } while (!control.isEmpty());
-      
+
+            if(this.fileName.equals("/"))
+                this.fileName = "index.html";
+                
             return headerClient;
 
         } catch (IOException err) {
@@ -108,22 +111,22 @@ public class Response implements Runnable {
         return null;
     }
     
-    public void logger(){
+    public void logger() throws IOException{
         String logger;
-        logger = date() + "/r/n"
-                + "Cliente com endereco " + client.getInetAddress().getHostName() + "/r/n"
-                + "Conectou-se com porta: " + client.getPort() + "/r/n"
-                + "Solicitando com metodo: " + method + "/r/n" 
-                + "Arquivo: " + fileName + "/r/n"
-                + "Protocolo: " + protocol + "/r/n"
-                + "Resposta Servidor: " + status + "/r/n";
+        logger = date() + " | "
+                + "Cliente com endereco " + client.getInetAddress().getHostName() + " | "
+                + "Conectou-se com porta: " + client.getPort() + " | "
+                + "Solicitando com metodo: " + method + " | "
+                + "Arquivo: " + fileName + " | "
+                + "Protocolo: " + protocol + " | "
+                + "Resposta Servidor: " + status;
         
-        log.criarArquivo("log.txt");
-        log.gravar("log.txt", logger, ".txt");
+        //log.criarArquivo("log.txt");
+        log.gravar("log", logger, ".txt");
         
     }
     
-        private static String date() {
+    private static String date() {
 
         try {
 

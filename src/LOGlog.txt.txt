@@ -1,1 +1,0 @@
-Cliente com endereco 0:0:0:0:0:0:0:1/r/nConectou-se com porta: 28457/r/nSolicitando com metodo: GET/r/nArquivo: /favicon.ico/r/nProtocolo: HTTP/1.1/r/nResposta Servidor: 404 Not Found/r/n

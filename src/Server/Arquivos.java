@@ -3,21 +3,18 @@ package Server;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 
-public class Log {
+public class Arquivos {
 
     String diretorio;
 
-    public Log(String diretorio) {
+    public Arquivos(String diretorio) {
 
         this.diretorio = diretorio;
 
@@ -52,12 +49,12 @@ public class Log {
 
     }
 
-    public final void gravar(String nomeArquivo, String conteudo, String extensao) {
+    public final void gravar(String nomeArquivo, String conteudo, String extensao) throws FileNotFoundException, IOException {
 
-        PrintWriter pw = new PrintWriter(localizar(nomeArquivo, extensao));
-        pw.println(conteudo);
-        pw.flush();
-        pw.close();
+        try ( PrintWriter pw = new PrintWriter(localizar(nomeArquivo, extensao)) ) {
+            pw.println(conteudo);
+            pw.flush();
+        }
 
     }
     
@@ -65,9 +62,8 @@ public class Log {
 
         try {
 
-            FileWriter localizar = new FileWriter(diretorio + nomeArquivo + extensao);
+            FileWriter localizar = new FileWriter(diretorio + nomeArquivo + extensao, true);
             //localizar.close();
-
             return localizar;
 
         } catch (IOException e) {
@@ -109,22 +105,4 @@ public class Log {
     public void inicializarVeriaveis() {
     }
 
-        private static String date() {
-
-        try {
-
-            SimpleDateFormat dataFormat = new SimpleDateFormat("E, dd MMM yyyy hh:mm:ss", Locale.ENGLISH);
-            Date date = new Date();
-            String dataAtual;
-
-            dataFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            dataAtual = dataFormat.format(date);
-
-            return dataAtual;
-        } catch (Exception er) {
-            System.err.println("Erro na data");
-        }
-        return null;
-    }
-    
 }
