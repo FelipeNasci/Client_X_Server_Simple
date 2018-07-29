@@ -5,6 +5,10 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -106,7 +110,8 @@ public class Response implements Runnable {
     
     public void logger(){
         String logger;
-        logger = "Cliente com endereco " + client.getInetAddress().getHostName() + "/r/n"
+        logger = date() + "/r/n"
+                + "Cliente com endereco " + client.getInetAddress().getHostName() + "/r/n"
                 + "Conectou-se com porta: " + client.getPort() + "/r/n"
                 + "Solicitando com metodo: " + method + "/r/n" 
                 + "Arquivo: " + fileName + "/r/n"
@@ -116,6 +121,24 @@ public class Response implements Runnable {
         log.criarArquivo("log.txt");
         log.gravar("log.txt", logger, ".txt");
         
+    }
+    
+        private static String date() {
+
+        try {
+
+            SimpleDateFormat dataFormat = new SimpleDateFormat("E, dd MMM yyyy hh:mm:ss", Locale.ENGLISH);
+            Date date = new Date();
+            String dataAtual;
+
+            dataFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            dataAtual = dataFormat.format(date);
+
+            return dataAtual;
+        } catch (Exception er) {
+            System.err.println("Erro na data");
+        }
+        return null;
     }
     
 }
