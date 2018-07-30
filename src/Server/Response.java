@@ -28,6 +28,7 @@ public class Response implements Runnable {
     private Arquivos log;
     private final Socket client;                //  Cliente
     private DataInputStream in;                 //  Captura mensagens do cliente
+    private boolean auth;
 
     @Override
     public void run() {
@@ -36,15 +37,16 @@ public class Response implements Runnable {
 
             in = new DataInputStream(client.getInputStream());
 
-            headerClient();
-            //System.err.println(headerClient());                     //  Ler o Cabecalho do client
+            headerClient();                                                     //lendo e tratando o cabeçalho do cliente
+            //System.err.println(headerClient());
+            //System.err.println(fileName);
             
             switch (method) {
                 
                 case "GET":
                     //  Solicita um documento do servidor
                     //  O Server recebe um GET e retorna uma resposta
-                    status = new File_Server(client, protocol, fileName).Response();
+                    status = new File_Server(client, protocol, fileName, auth).Response();
                     logger();                                       //  Salva informacoes do servidor em um log 
                     break;
 
@@ -80,7 +82,6 @@ public class Response implements Runnable {
 
     private String headerClient() throws InterruptedException {
         try {
-
             BufferedReader buffReader = new BufferedReader(new InputStreamReader(in));
 
             String[] str = buffReader.readLine().split(" ");
@@ -88,21 +89,25 @@ public class Response implements Runnable {
             this.method = str[0];
             this.fileName = str[1];
             this.protocol = str[2];
-            
+            auth = false;
+
             //  Armazena o cabecalho da requisicao HTTP e recupera a primeira linha
             String headerClient = method + " " + fileName + " " + protocol + "\r\n";
             String control;                 //  Variavel para extrair cada linha da requisicao
+
+            do {
+
+                control = buffReader.readLine();
+                headerClient += control + "\r\n";
+
+            } while (!control.isEmpty());
             
-                do {
+            if (headerClient.contains("Authorization: Basic d2VibWFzdGVyOnpycW1hNHY=")) auth = true;  //se vier essa string no header
+                                                                                                     //o client acertou a senha
+            if (this.fileName.equals("/")) {
+                this.fileName = "Site/index.html";
+            }
 
-                    control = buffReader.readLine();
-                    headerClient += control + "\r\n";
-
-                } while (!control.isEmpty());
-
-            if(this.fileName.equals("/"))
-                this.fileName = "index.html";
-                
             return headerClient;
 
         } catch (IOException err) {

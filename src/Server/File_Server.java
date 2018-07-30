@@ -10,11 +10,11 @@ import java.nio.file.Files;
 
 public class File_Server {
 
-    public File_Server(Socket client, String protocol, String fileName) {
+    public File_Server(Socket client, String protocol, String fileName, boolean didAuthenticate) {
         defineFile(fileName);           //  Inicia o file
         this.client = client;
         this.protocol = protocol;
-        
+        this.didAuthenticate = didAuthenticate;
     }
 
     private String address;
@@ -25,6 +25,7 @@ public class File_Server {
 
     private final Socket client;
     private File file;
+    private boolean didAuthenticate;
 
     public String Response() {
 
@@ -36,7 +37,7 @@ public class File_Server {
                 content = Files.readAllBytes(file.toPath());
 
                 //  Escreve para o cliente o Header e o body
-                String str = headerResponse( authenticate() );
+                String str = headerResponse(needAuthenticate());
 
                 //  System.err.println(str);
 
@@ -75,12 +76,12 @@ public class File_Server {
 
         }
         
-    private boolean authenticate() {
+    private boolean needAuthenticate() {
 
         //  Se for necessario autenticar, o codigo de status
         //  deve mudar
-        if (address.equalsIgnoreCase("src/Site//site2.html")) {
-            status = "401 Unauthorized";
+        if (address.contains("Protegido") && (!didAuthenticate)) {              //se o diretorio for protegido e o cliente
+            status = "401 Unauthorized";                                        //nao autenticou, entao manda autenticar
             return true;
         }
         return false;
@@ -88,12 +89,12 @@ public class File_Server {
     
     private void defineFile(String fileName) {
 
-        this.address = "src/Site/" + fileName;          //  Define o endereco do arquivo
+        this.address = "src/" + fileName;          //  Define o endereco do arquivo
         this.file = new File(address);                  //  Procura o arquivo
         this.status = "200 OK";                         //  Arquivo encontrado | tudo ok
 
         if (!file.exists()) {                           //  Se o arquivo nao existe
-            this.address = "src/Site/" + "erro.html";   //  Localiza pg de erro 
+            this.address = "src/" + "Site/erro.html";   //  Localiza pg de erro 
             this.file = new File(address);              //  Identifica o arquivo de erro
             this.status = "404 Not Found";              //  Bad request
         }
