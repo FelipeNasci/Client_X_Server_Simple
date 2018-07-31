@@ -20,6 +20,7 @@ public class File_Server {
     private String address;
     private final String protocol;
     private String status;                      //  o status de retorno da resposta do servidor
+    private String fileName;
     
     private byte[] content;
 
@@ -39,7 +40,7 @@ public class File_Server {
                 //  Escreve para o cliente o Header e o body
                 String str = headerResponse(needAuthenticate());
 
-                //  System.err.println(str);
+                System.err.println(str);
 
                 out.write(str.getBytes());
                 out.write(content);
@@ -80,8 +81,10 @@ public class File_Server {
 
         //  Se for necessario autenticar, o codigo de status
         //  deve mudar
-        if (address.contains("Protegido") && (!didAuthenticate)) {              //se o diretorio for protegido e o cliente
+        if (address.toLowerCase().contains("protegido") && (!didAuthenticate)) {              //se o diretorio for protegido e o cliente
             status = "401 Unauthorized";                                        //nao autenticou, entao manda autenticar
+            this.address = "src/" + "Site/erro.html";
+            this.file = new File(address);
             return true;
         }
         return false;
@@ -89,7 +92,7 @@ public class File_Server {
     
     private void defineFile(String fileName) {
 
-        this.address = "src/" + fileName;          //  Define o endereco do arquivo
+        this.address = "src/site/" + fileName;          //  Define o endereco do arquivo
         this.file = new File(address);                  //  Procura o arquivo
         this.status = "200 OK";                         //  Arquivo encontrado | tudo ok
 

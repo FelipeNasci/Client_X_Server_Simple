@@ -105,7 +105,7 @@ public class Response implements Runnable {
             if (headerClient.contains("Authorization: Basic d2VibWFzdGVyOnpycW1hNHY=")) auth = true;  //se vier essa string no header
                                                                                                      //o client acertou a senha
             if (this.fileName.equals("/")) {
-                this.fileName = "Site/index.html";
+                this.fileName = "index.html";
             }
 
             return headerClient;
