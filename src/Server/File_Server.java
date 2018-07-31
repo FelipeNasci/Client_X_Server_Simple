@@ -40,7 +40,7 @@ public class File_Server {
                 //  Escreve para o cliente o Header e o body
                 String str = headerResponse(needAuthenticate());
 
-                System.err.println(str);
+                //System.err.println(str);
 
                 out.write(str.getBytes());
                 out.write(content);
